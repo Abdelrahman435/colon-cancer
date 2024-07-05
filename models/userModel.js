@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema(
     },
     file: {
       type: String,
-      default: "https://shopping-gp-2b5338c8c372.herokuapp.com/user_1.png",
+      default: "https://coloncancer-37854a95459d.herokuapp.com/user_1.png",
     },
     experience: {
       type: Number,
