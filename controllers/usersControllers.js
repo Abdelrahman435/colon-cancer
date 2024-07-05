@@ -6,7 +6,6 @@ const sharp = require("sharp");
 const factory = require("./handlerFactory");
 const cloudinary = require("../utils/cloudinary");
 
-
 const multerStorage = multer.memoryStorage();
 
 // const multerFilter = (req, file, cb) => {
@@ -66,7 +65,12 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     "lastName",
     "email",
     "file",
-    "phone"
+    "phone",
+    "availableAppointments",
+    "description",
+    "experience",
+    "address",
+    "hospital"
   );
 
   //2) update user document
@@ -97,4 +101,3 @@ exports.updateUser = factory.updateOne(User);
 exports.getAllUsers = factory.getAll(User);
 
 exports.getUser = factory.getOne(User);
-
