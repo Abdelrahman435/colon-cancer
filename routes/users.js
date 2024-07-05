@@ -22,10 +22,6 @@ router.patch(
   userController.updateMe
 );
 
-router.use(authController.restrictTo("super admin"));
-
-router.patch("/activate/:id", userController.changeStatus);
-
 router
   .route("/:id")
   .delete(userController.deleteUser)
