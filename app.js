@@ -16,6 +16,7 @@ const globalErrorHandler = require("./controllers/errorController");
 var usersRouter = require("./routes/users");
 var zoomRouter = require("./routes/zoom");
 var medicinesRouter = require("./routes/medicines");
+var cancerRouter = require("./routes/cancer");
 
 // const poseDetectRouter = require("./routes/poseDetect");
 
@@ -71,8 +72,8 @@ app.use(compression());
 app.use(express.static("upload"));
 
 app.use("/users", usersRouter);
-// app.use("/zoom", zoomRouter);
 app.use("/medicines", medicinesRouter);
+app.use("/checkCancer", cancerRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
