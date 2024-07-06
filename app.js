@@ -14,6 +14,8 @@ const compression = require("compression");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 var usersRouter = require("./routes/users");
+var zoomRouter = require("./routes/zoom");
+var medicinesRouter = require("./routes/medicines");
 
 // const poseDetectRouter = require("./routes/poseDetect");
 
@@ -69,7 +71,8 @@ app.use(compression());
 app.use(express.static("upload"));
 
 app.use("/users", usersRouter);
-// app.use("/poseDetect", poseDetectRouter);
+// app.use("/zoom", zoomRouter);
+app.use("/medicines", medicinesRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
