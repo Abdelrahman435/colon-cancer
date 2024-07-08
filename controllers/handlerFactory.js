@@ -59,7 +59,7 @@ exports.updateOne = (Model) =>
     res.status(200).json({
       status: "success",
       data: {
-        data: doc,
+        doc,
       },
     });
   });
@@ -98,7 +98,7 @@ exports.getOne = (Model, popOptions) =>
     res.status(200).json({
       status: "success",
       data: {
-        data: doc,
+        doc,
       },
     });
   });
@@ -129,7 +129,7 @@ exports.getAll = (Model) =>
       totalPages,
       results: documents.length,
       data: {
-        data: documents,
+        documents,
       },
     });
   });
