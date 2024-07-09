@@ -108,6 +108,7 @@ exports.getAll = (Model) =>
     //To allow for nested GET Materials on course
     let filter = {};
     let docs;
+    if (req.params.courseId) filter = { course: req.params.courseId };
     const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
       .sort()
@@ -121,6 +122,12 @@ exports.getAll = (Model) =>
     } else {
       totalPages = 0;
       docs = 0;
+    }
+    if (Model == 'Meetings') {
+      documents = documents.map((meeting) => {
+        meeting.updateStatus();
+        return meeting;
+      });
     }
     // SEND RESPONSE
     res.status(200).json({
