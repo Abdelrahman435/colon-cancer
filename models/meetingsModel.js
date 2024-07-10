@@ -68,6 +68,14 @@ meetingsSchema.statics.updateMeetingStatus = async function (meetingId) {
   }
 };
 
+meetingsSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "patient",
+    select: "firstName lastName email _id file",
+  });
+  next();
+});
+
 const Meetings = mongoose.model("Meetings", meetingsSchema);
 
 module.exports = Meetings;
