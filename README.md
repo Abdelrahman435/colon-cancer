@@ -2,7 +2,7 @@
 
 ## Description
 
-Backend for an online shopping platform with Stripe payment integration and AI-based clothes fitting functionality. Built using Node.js and Flask.
+This project is the backend for an online shopping platform developed using Node.js. The platform integrates Stripe for payment processing and utilizes an AI-based clothes fitting functionality. The AI model, built with Flask, allows users to upload photos for virtual fitting, thereby enhancing their shopping experience with advanced technology.
 
 ## Repositories and Resources
 
@@ -15,18 +15,6 @@ Backend for an online shopping platform with Stripe payment integration and AI-b
 - **Stripe Payment Integration**
 - **AI-Based Clothes Fitting**
 - **User-Friendly Interface**
-
-## Animation and Photos
-
-### Animation
-
-![Shopping Platform Animation](https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif)
-
-### Photos
-
-![Photo 1](https://via.placeholder.com/400)
-![Photo 2](https://via.placeholder.com/400)
-![Photo 3](https://via.placeholder.com/400)
 
 ## AI-Based Clothes Fitting
 
