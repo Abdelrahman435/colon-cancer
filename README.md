@@ -16,9 +16,17 @@ Backend for an online shopping platform with Stripe payment integration and AI-b
 - **AI-Based Clothes Fitting**
 - **User-Friendly Interface**
 
-## Animation
+## Animation and Photos
+
+### Animation
 
 ![Shopping Platform Animation](https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif)
+
+### Photos
+
+![Photo 1](https://via.placeholder.com/400)
+![Photo 2](https://via.placeholder.com/400)
+![Photo 3](https://via.placeholder.com/400)
 
 ## AI-Based Clothes Fitting
 
