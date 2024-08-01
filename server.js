@@ -15,7 +15,8 @@ process.on("uncaughtException", (err) => {
 var app = require("./app");
 var debug = require("debug")("server:server");
 var http = require("http");
-
+const cors = require("cors");
+const { Socket } = require("socket.io");
 /**
  * Get port from environment and store in Express.
  */
@@ -42,7 +43,15 @@ app.set("port", port);
 
 var server = http.createServer(app);
 
+var io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
+io.on("connection", (socket) => {
+  console.log("connected");
+});
 
 /**
  * Listen on provided port, on all network interfaces.

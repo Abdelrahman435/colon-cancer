@@ -123,7 +123,7 @@ exports.getAll = (Model) =>
       totalPages = 0;
       docs = 0;
     }
-    if (Model == 'Meetings') {
+    if (Model == 'Reservations') {
       documents = documents.map((meeting) => {
         meeting.updateStatus();
         return meeting;

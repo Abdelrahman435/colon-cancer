@@ -16,7 +16,7 @@ const globalErrorHandler = require("./controllers/errorController");
 var usersRouter = require("./routes/users");
 var medicinesRouter = require("./routes/medicines");
 var cancerRouter = require("./routes/cancer");
-var meetingsRouter = require("./routes/meetings");
+var meetingsRouter = require("./routes/reservation");
 
 // const poseDetectRouter = require("./routes/poseDetect");
 
