@@ -20,9 +20,6 @@ const reservationSchema = new mongoose.Schema(
       type: Date, // Use Date type
       required: true,
     },
-    day:{
-      type: String,
-    },
     expiredAt: {
       type: Date, // Use Date type
       required: true,
