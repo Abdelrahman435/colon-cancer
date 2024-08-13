@@ -16,6 +16,8 @@ router
   .post(
     authController.restrictTo("user"),
     reservationController.setLink,
+    reservationController.setExpireDate,
+    reservationController.pushreservation,
     reservationController.addReservation
   )
   .get(reservationController.getAllReservations);

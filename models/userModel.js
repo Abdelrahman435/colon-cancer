@@ -57,16 +57,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide your date of birth"],
     },
-    // rating: {
-    //   type: Number,
-    //   default: 4.0,
-    //   min: [1, "Rating must be above 1.0"],
-    //   max: [5, "Rating must be below 5.0"],
-    // },
-    // reviews: {
-    //   type: Number,
-    //   default: 200,
-    // },
     availableAppointments: [
       {
         day: {
@@ -81,6 +71,17 @@ const userSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+        slots: [
+          {
+            type: String,
+            required: true,
+          },
+        ],
+      },
+    ],
+    appointmentsBooked: [
+      {
+        type: String,
       },
     ],
     role: {
@@ -110,7 +111,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please confirm your password"],
       validate: {
-        // This only works on CREATE and SAVE!!!
         validator: function (el) {
           return el === this.password;
         },
@@ -132,16 +132,16 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// Pre-save middleware to hash password if modified
 userSchema.pre("save", async function (next) {
-  // Only run this function if password has changed
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
-  //delete password Confirmation from database
   this.passwordConfirm = undefined;
   next();
 });
 
+// Pre-save middleware to set passwordChangedAt
 userSchema.pre("save", function (next) {
   if (!this.isModified("password") || this.isNew) return next();
 
@@ -149,6 +149,7 @@ userSchema.pre("save", function (next) {
   next();
 });
 
+// Method to compare passwords
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
@@ -156,6 +157,7 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+// Method to check if password was changed after a token was issued
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000);
@@ -164,6 +166,7 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
+// Method to create a password reset token
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
 
@@ -171,11 +174,47 @@ userSchema.methods.createPasswordResetToken = function () {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
 };
+
+// Pre-save middleware to process appointment slots
+userSchema.pre("save", function (next) {
+  this.availableAppointments.forEach((appointment) => {
+    if (appointment.from && appointment.to) {
+      const slots = [];
+      const fromHour = parseInt(appointment.from.split(" ")[0]);
+      const fromPeriod = appointment.from.split(" ")[1];
+      const toHour = parseInt(appointment.to.split(" ")[0]);
+      const toPeriod = appointment.to.split(" ")[1];
+
+      let startHour = fromHour;
+      let endHour = toHour;
+
+      if (fromPeriod.toLowerCase() === "pm" && fromHour !== 12) {
+        startHour += 12;
+      } else if (fromPeriod.toLowerCase() === "am" && fromHour === 12) {
+        startHour = 0;
+      }
+
+      if (toPeriod.toLowerCase() === "pm" && toHour !== 12) {
+        endHour += 12;
+      } else if (toPeriod.toLowerCase() === "am" && toHour === 12) {
+        endHour = 0;
+      }
+
+      for (let i = startHour; i < endHour; i++) {
+        const slot = `${i % 12 === 0 ? 12 : i % 12} ${i < 12 ? "am" : "pm"}`;
+        slots.push(slot);
+      }
+
+      appointment.slots = slots;
+    }
+  });
+
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 

@@ -4,6 +4,7 @@ const reservationSchema = new mongoose.Schema(
   {
     meetingLink: {
       type: String,
+      required: true,
     },
     patient: {
       type: mongoose.Schema.ObjectId,
@@ -18,6 +19,9 @@ const reservationSchema = new mongoose.Schema(
     startedAt: {
       type: Date, // Use Date type
       required: true,
+    },
+    day:{
+      type: String,
     },
     expiredAt: {
       type: Date, // Use Date type
@@ -78,7 +82,7 @@ reservationSchema.post(/^find/, async function (docs, next) {
     }
   }
   next();
-})
+});
 
 const Reservations = mongoose.model("Reservations", reservationSchema);
 
