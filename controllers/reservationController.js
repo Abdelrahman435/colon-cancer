@@ -3,6 +3,7 @@ const factory = require("./handlerFactory");
 const { v4: uuidv4 } = require("uuid");
 const catchAsync = require("../utils/catchAsync");
 const User = require("../models/userModel");
+const cron = require("cron");
 
 exports.setLink = (req, res, next) => {
   const meetingId = uuidv4();
@@ -30,7 +31,6 @@ exports.setExpireDate = catchAsync(async (req, res, next) => {
   next();
 });
 
-
 exports.pushreservation = catchAsync(async (req, res, next) => {
   const doctor = req.body.doctor;
   await User.findByIdAndUpdate(doctor, {
@@ -48,3 +48,39 @@ exports.updateReservation = factory.updateOne(Reservations);
 exports.getAllReservations = factory.getAll(Reservations);
 
 exports.getReservations = factory.getOne(Reservations);
+
+const deleteReservations = async () => {
+  try {
+    const appoinmentsEnded = await Reservations.find({ status: "ended" });
+
+    for (let i = 0; i < appoinmentsEnded.length; i++) {
+      const doctorId = appoinmentsEnded[i].doctor;
+      const startedAt = appoinmentsEnded[i].startedAt.toISOString(); // Convert to ISO string
+
+      const result = await User.findByIdAndUpdate(
+        doctorId,
+        { $pull: { appointmentsBooked: startedAt } }
+      );
+    }
+
+    await Reservations.deleteMany({ status: "ended" });
+
+    console.log("All ended appointments have been updated and deleted");
+  } catch (err) {
+    console.error("Error resetting tables or deleting bookings:", err);
+  }
+};
+
+
+const job = new cron.CronJob(
+  "0 0 * * *",
+  deleteReservations,
+  null, // No completion callback
+  true, // Start the job right now
+  "Africa/Cairo"
+);
+
+exports.startCronJob = () => {
+  job.start();
+};
+
