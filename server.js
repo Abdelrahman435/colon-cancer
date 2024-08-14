@@ -5,6 +5,8 @@
  */
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const http = require("http");
+const socketIo = require("socket.io");
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -14,9 +16,7 @@ process.on("uncaughtException", (err) => {
 
 var app = require("./app");
 var debug = require("debug")("server:server");
-var http = require("http");
-const cors = require("cors");
-const { Socket } = require("socket.io");
+
 /**
  * Get port from environment and store in Express.
  */
@@ -46,23 +46,34 @@ startCronJob.startCronJob();
 /**
  * Create HTTP server.
  */
-
 var server = http.createServer(app);
 
-var io = require("socket.io")(server, {
+// Integrate Socket.io
+const io = socketIo(server, {
   cors: {
-    origin: "*",
+    origin: "", // Adjust this to limit access to your Flutter app only
+    methods: ["GET", "POST"],
   },
 });
 
 io.on("connection", (socket) => {
-  console.log("connected");
+  console.log("a user connected:", socket.id);
+
+  // Handle receiving a message
+  socket.on("sendMessage", (message) => {
+    console.log("Message received: ", message);
+    // Broadcast the message to all connected clients
+    io.emit("receiveMessage", message);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected:", socket.id);
+  });
 });
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
@@ -70,24 +81,8 @@ server.on("listening", onListening);
 /**
  * Normalize a port into a number, string, or false.
  */
-
-process.on("unhandledRejection", (err) => {
-  console.log("UNHANDLED REJECTION! 💥 Shutting down...");
-  console.log(err.name, err.message);
-  server.close(() => {
-    process.exit(1);
-  });
-});
-
-process.on("SIGTERM", () => {
-  console.log("SIGTERM RECEIVED, Shutting down gracefully...");
-  server.close(() => {
-    console.log("Process terminated!");
-  });
-});
-
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+  const port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe
@@ -105,13 +100,12 @@ function normalizePort(val) {
 /**
  * Event listener for HTTP server "error" event.
  */
-
 function onError(error) {
   if (error.syscall !== "listen") {
     throw error;
   }
 
-  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+  const bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -131,9 +125,8 @@ function onError(error) {
 /**
  * Event listener for HTTP server "listening" event.
  */
-
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  const addr = server.address();
+  const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
   debug("Listening on " + bind);
 }
