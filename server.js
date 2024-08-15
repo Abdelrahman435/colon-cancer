@@ -34,7 +34,7 @@ mongoose
     console.error("Error connecting to the database:", error.message);
   });
 
-var port = normalizePort(process.env.PORT || "3000");
+var port = normalizePort(process.env.PORT || "4000");
 app.set("port", port);
 
 // Import the cron job function
@@ -51,7 +51,7 @@ var server = http.createServer(app);
 // Integrate Socket.io
 const io = socketIo(server, {
   cors: {
-    origin: "", // Adjust this to limit access to your Flutter app only
+    origin: "*", // Adjust this to limit access to your Flutter app only
     methods: ["GET", "POST"],
   },
 });
