@@ -117,6 +117,11 @@ const userSchema = new mongoose.Schema(
         message: "Passwords are not the same!",
       },
     },
+    status: {
+      type: String,
+      enum: ["online", "offline"],
+      default: "offline",
+    },
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,

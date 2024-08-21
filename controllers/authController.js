@@ -10,7 +10,6 @@ const multer = require("multer");
 const sharp = require("sharp");
 const multerStorage = multer.memoryStorage();
 
-
 // const multerFilter = (req, file, cb) => {
 //   if (file.mimetype.startsWith("image")) {
 //     cb(null, true);
@@ -86,16 +85,30 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  if (user.active == false) {
-    return res.status(401).json({
-      status: "fail",
-      message: "Your email not verified yet",
-    });
-  }
   user.rememberMe = rememberMe;
+  user.status = "online"; // Set status to online
+  await user.save({ validateBeforeSave: false });
 
   createSendToken(user, 200, req, res);
 });
+
+exports.logout = (req, res) => {
+  // Set the user's status to "offline"
+  req.user.status = "offline";
+
+  // Save the updated user information to the database without running validations
+  req.user.save({ validateBeforeSave: false });
+
+  // Clear the JWT (JSON Web Token) cookie by setting it to "loggedout" with an immediate expiration time
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000), // Set expiration time to 10 seconds from now
+    httpOnly: true, // The cookie is accessible only by the web server, not by JavaScript in the browser
+    secure: req.secure || req.headers["x-forwarded-porto"] === "https", // Send cookie over HTTPS only in production
+  });
+
+  // Send a success response with status code 200 (OK)
+  res.status(200).json({ status: "success" });
+};
 
 exports.protect = catchAsync(async (req, res, next) => {
   //1) Getting the token and checking if its there
@@ -145,7 +158,6 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
-
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on posted email

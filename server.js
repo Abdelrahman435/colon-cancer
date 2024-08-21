@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const http = require("http");
 const socketIo = require("socket.io");
+const User = require("./models/userModel");
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -39,6 +40,7 @@ app.set("port", port);
 
 // Import the cron job function
 const startCronJob = require("./controllers/reservationController");
+const { log } = require("debug/src/node");
 
 // Start the cron job
 startCronJob.startCronJob();
@@ -56,6 +58,39 @@ const io = socketIo(server, {
   },
 });
 
+const usp = io.of("/user-namespace");
+
+usp.on("connection", async function (socket) {
+  console.log("User Connected");
+
+  var userId = socket.handshake.auth.token;
+
+  try {
+    await User.findByIdAndUpdate(
+      { _id: userId },
+      { $set: { status: "online" } }
+    );
+    socket.broadcast.emit("getOnlineUser", { userId: userId });
+  } catch (error) {
+    console.error("Error updating user status to online:", error);
+    socket.disconnect(); // Optionally disconnect if something goes wrong
+  }
+
+  socket.on("disconnect", async function () {
+    console.log("User Disconnected");
+
+    try {
+      await User.findByIdAndUpdate(
+        { _id: userId },
+        { $set: { status: "offline" } }
+      );
+      socket.broadcast.emit("getOfflineUser", { userId: userId });
+    } catch (error) {
+      console.error("Error updating user status to offline:", error);
+    }
+  });
+});
+
 io.on("connection", (socket) => {
   console.log("a user connected:", socket.id);
 
@@ -64,7 +99,7 @@ io.on("connection", (socket) => {
     console.log("Message received: ", message);
     // Broadcast the message to all connected clients
     socket.broadcast.emit("receiveMessage", message);
-    });
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected:", socket.id);
