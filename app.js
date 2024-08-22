@@ -17,8 +17,7 @@ var usersRouter = require("./routes/users");
 var medicinesRouter = require("./routes/medicines");
 var cancerRouter = require("./routes/cancer");
 var meetingsRouter = require("./routes/reservation");
-
-// const poseDetectRouter = require("./routes/poseDetect");
+var messagesRouter = require("./routes/reservation");
 
 var app = express();
 
@@ -75,6 +74,7 @@ app.use("/users", usersRouter);
 app.use("/medicines", medicinesRouter);
 app.use("/checkCancer", cancerRouter);
 app.use("/meetings", meetingsRouter);
+app.use("/messages", messagesRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

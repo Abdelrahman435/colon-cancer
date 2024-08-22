@@ -8,6 +8,7 @@ const dotenv = require("dotenv");
 const http = require("http");
 const socketIo = require("socket.io");
 const User = require("./models/userModel");
+const Message = require("../models/Message");
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -89,22 +90,36 @@ usp.on("connection", async function (socket) {
       console.error("Error updating user status to offline:", error);
     }
   });
-});
 
-io.on("connection", (socket) => {
-  console.log("a user connected:", socket.id);
-
-  // Handle receiving a message
-  socket.on("sendMessage", (message) => {
-    console.log("Message received: ", message);
-    // Broadcast the message to all connected clients
-    socket.broadcast.emit("receiveMessage", message);
+  socket.on("newChat", function (data) {
+    socket.broadcast.emit("loadNewChat", data);
   });
 
-  socket.on("disconnect", () => {
-    console.log("user disconnected:", socket.id);
+  socket.on("existsChat", async function (data) {
+    var chats = await Message.find({
+      $or: [
+        { sender: data.sender_id, receiver: data.receiver_id },
+        { sender: data.receiver_id, receiver: data.sender_id },
+      ],
+    });
+    socket.emit("loadChats", { chats: data });
   });
 });
+
+// io.on("connection", (socket) => {
+//   console.log("a user connected:", socket.id);
+
+//   // Handle receiving a message
+//   socket.on("sendMessage", (message) => {
+//     console.log("Message received: ", message);
+//     // Broadcast the message to all connected clients
+//     socket.broadcast.emit("receiveMessage", message);
+//   });
+
+//   socket.on("disconnect", () => {
+//     console.log("user disconnected:", socket.id);
+//   });
+// });
 
 /**
  * Listen on provided port, on all network interfaces.

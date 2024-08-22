@@ -1,31 +1,12 @@
 const Message = require("../models/Message");
 const factory = require("./handlerFactory");
 
-exports.sendMessage = async (req, res) => {
-  try {
-    const newMessage = await factory.createOne(Message)(req, res);
-
-    // Emit the new message to both sender and receiver
-    req.io.emit("newMessage", {
-      sender: newMessage.sender,
-      receiver: newMessage.receiver,
-      content: newMessage.content,
-      timestamp: newMessage.timestamp,
-    });
-
-    res.status(201).json({
-      status: "success",
-      data: {
-        message: newMessage,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
-  }
+exports.setId = (req, res, next) => {
+  req.body.sender = req.user.id;
+  next();
 };
+
+exports.saveMessage = factory(Message);
 
 exports.getMessages = async (req, res) => {
   try {
